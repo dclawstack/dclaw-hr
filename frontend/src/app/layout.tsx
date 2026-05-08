@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "DClaw HR",
-  description: "Resume screening, interview prep & onboarding",
+  description: "DClaw vertical SaaS application",
 };
 
 export default function RootLayout({

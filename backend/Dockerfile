@@ -12,6 +12,17 @@ RUN pip install --no-cache-dir -e ".[dev]"
 
 COPY app/ ./app/
 
-EXPOSE 8103
+RUN groupadd -r appuser && useradd -r -g appuser appuser && \
+    chown -R appuser:appuser /app
+USER appuser
 
-CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8103"]
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8097
+
+EXPOSE 8097
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8097/health/')" || exit 1
+
+CMD ["uvicorn", "app.api.main:app", "--host", "0.0.0.0", "--port", "8097"]
