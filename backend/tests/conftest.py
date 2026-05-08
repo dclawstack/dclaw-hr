@@ -6,7 +6,7 @@ from app.api.main import app
 from app.core.database import get_db
 from app.models.base import Base
 
-TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5434/dclaw_hr_test"
+TEST_DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_hr_test"
 
 engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 test_async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
