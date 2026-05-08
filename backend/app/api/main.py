@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import health
-from app.api.v1 import hr
+from app.api.v1 import employees, time_off, payroll, dashboard
 from app.core.config import settings
 from app.core.database import init_db
 
@@ -34,7 +34,10 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(health.router)
-    app.include_router(hr.router, prefix="/api/v1")
+    app.include_router(employees.router, prefix="/api/v1")
+    app.include_router(time_off.router, prefix="/api/v1")
+    app.include_router(payroll.router, prefix="/api/v1")
+    app.include_router(dashboard.router, prefix="/api/v1")
 
     return app
 

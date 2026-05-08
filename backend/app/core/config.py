@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
+
     app_name: str = "DClaw HR"
     app_env: str = "dev"
     debug: bool = True
@@ -15,10 +17,6 @@ class Settings(BaseSettings):
     
     secret_key: str = "change-me-in-production"
     access_token_expire_minutes: int = 60
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
 
 
 settings = Settings()

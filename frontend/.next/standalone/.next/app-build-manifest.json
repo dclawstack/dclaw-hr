@@ -1,0 +1,97 @@
+{
+  "pages": {
+    "/_not-found/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/app/_not-found/page-68f4c8e7753a10c4.js"
+    ],
+    "/layout": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/css/337bda56d61a2a28.css",
+      "static/chunks/137-4182035b38e72492.js",
+      "static/chunks/648-5ec8a0ab0b5734f9.js",
+      "static/chunks/app/layout-e8be3532a94de833.js"
+    ],
+    "/dashboard/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/app/dashboard/page-6b6c90259565e4af.js"
+    ],
+    "/employees/[id]/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/137-4182035b38e72492.js",
+      "static/chunks/966-003b12df10eb67cc.js",
+      "static/chunks/358-66efbce17c5e8edf.js",
+      "static/chunks/894-3ab1bab8bf433d36.js",
+      "static/chunks/539-9dbc110432d688b3.js",
+      "static/chunks/app/employees/[id]/page-d97bde8b6cf60a8e.js"
+    ],
+    "/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/137-4182035b38e72492.js",
+      "static/chunks/966-003b12df10eb67cc.js",
+      "static/chunks/app/page-882ab75f697fb646.js"
+    ],
+    "/employees/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/137-4182035b38e72492.js",
+      "static/chunks/966-003b12df10eb67cc.js",
+      "static/chunks/358-66efbce17c5e8edf.js",
+      "static/chunks/894-3ab1bab8bf433d36.js",
+      "static/chunks/23-bd2ae73aeb84f98a.js",
+      "static/chunks/648-5ec8a0ab0b5734f9.js",
+      "static/chunks/app/employees/page-eb1d0bf713f56f51.js"
+    ],
+    "/payroll/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/137-4182035b38e72492.js",
+      "static/chunks/966-003b12df10eb67cc.js",
+      "static/chunks/358-66efbce17c5e8edf.js",
+      "static/chunks/894-3ab1bab8bf433d36.js",
+      "static/chunks/23-bd2ae73aeb84f98a.js",
+      "static/chunks/app/payroll/page-12aaf6f640bff1ad.js"
+    ],
+    "/time-off/new/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/137-4182035b38e72492.js",
+      "static/chunks/966-003b12df10eb67cc.js",
+      "static/chunks/358-66efbce17c5e8edf.js",
+      "static/chunks/894-3ab1bab8bf433d36.js",
+      "static/chunks/23-bd2ae73aeb84f98a.js",
+      "static/chunks/app/time-off/new/page-f6343823771fd6cc.js"
+    ],
+    "/time-off/page": [
+      "static/chunks/webpack-a3c37fcbf859f6f9.js",
+      "static/chunks/fd9d1056-ae25522868f51fe4.js",
+      "static/chunks/117-c66d0ef6d5da5758.js",
+      "static/chunks/main-app-4286052e44b1460e.js",
+      "static/chunks/137-4182035b38e72492.js",
+      "static/chunks/966-003b12df10eb67cc.js",
+      "static/chunks/358-66efbce17c5e8edf.js",
+      "static/chunks/648-5ec8a0ab0b5734f9.js",
+      "static/chunks/app/time-off/page-b1bb15239015b86a.js"
+    ]
+  }
+}
