@@ -28,6 +28,13 @@ export default function NewTimeOffPage() {
       .catch((e) => setError(e.message));
   }, []);
 
+  useEffect(() => {
+    if (startDate && endDate && endDate >= startDate) {
+      const calc = Math.max(1, Math.round((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000) + 1);
+      setDays(String(calc));
+    }
+  }, [startDate, endDate]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
@@ -93,7 +100,9 @@ export default function NewTimeOffPage() {
             </div>
             <div className="space-y-2">
               <Label>Days</Label>
-              <Input type="number" min={1} value={days} onChange={(e) => setDays(e.target.value)} required />
+              <div className="flex h-9 items-center rounded-md border border-border bg-muted px-3 text-sm text-muted-foreground">
+                {days || "Set dates above to calculate"}
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Reason</Label>

@@ -6,9 +6,10 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getEmployee, listTimeOff, listPayroll, Employee, TimeOffRequest, PayrollRecord } from "@/lib/api";
+import { getEmployee, listTimeOff, listPayroll, updateEmployee, Employee, TimeOffRequest, PayrollRecord } from "@/lib/api";
 
 export default function EmployeeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +17,8 @@ export default function EmployeeDetailPage() {
   const [timeOff, setTimeOff] = useState<TimeOffRequest[]>([]);
   const [payroll, setPayroll] = useState<PayrollRecord[]>([]);
   const [error, setError] = useState("");
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -32,8 +35,23 @@ export default function EmployeeDetailPage() {
       .catch((err) => setError(err.message));
   }, [id]);
 
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (!employee) return <div className="text-slate-500">Loading...</div>;
+  async function handleStatusToggle() {
+    if (!employee) return;
+    const newStatus = employee.status === "terminated" ? "active" : "terminated";
+    setActionLoading(true);
+    try {
+      const updated = await updateEmployee(id, { status: newStatus });
+      setEmployee(updated);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setActionLoading(false);
+      setShowConfirm(false);
+    }
+  }
+
+  if (error) return <div className="text-destructive">{error}</div>;
+  if (!employee) return <div className="text-muted-foreground">Loading...</div>;
 
   return (
     <div className="space-y-4">
@@ -41,9 +59,43 @@ export default function EmployeeDetailPage() {
         <h1 className="text-2xl font-bold">
           {employee.first_name} {employee.last_name}
         </h1>
-        <Link href={`/employees/${id}/edit`}>
-          <Button variant="secondary">Edit</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href={`/employees/${id}/edit`}>
+            <Button variant="secondary">Edit</Button>
+          </Link>
+          {employee.status !== "terminated" ? (
+            <Button variant="destructive" onClick={() => setShowConfirm(true)}>
+              Terminate
+            </Button>
+          ) : (
+            <Button variant="outline" disabled={actionLoading} onClick={handleStatusToggle}>
+              Reinstate
+            </Button>
+          )}
+        </div>
+
+        <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Terminate Employee</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to terminate{" "}
+              <span className="font-semibold text-foreground">
+                {employee.first_name} {employee.last_name}
+              </span>
+              ? This can be reversed by reinstating them later.
+            </p>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setShowConfirm(false)}>
+                Cancel
+              </Button>
+              <Button variant="destructive" disabled={actionLoading} onClick={handleStatusToggle}>
+                {actionLoading ? "Processing..." : "Terminate"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex items-center gap-2">
         <Badge variant="secondary" className="capitalize">

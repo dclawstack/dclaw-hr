@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CalendarDays, Banknote } from "lucide-react";
+import { LayoutDashboard, Users, CalendarDays, Banknote, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -10,19 +10,20 @@ const nav = [
   { name: "Employees", href: "/employees", icon: Users },
   { name: "Time Off", href: "/time-off", icon: CalendarDays },
   { name: "Payroll", href: "/payroll", icon: Banknote },
+  { name: "Recruitment", href: "/recruitment", icon: Briefcase },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
-        <span className="text-xl font-bold text-slate-800">DClaw HR</span>
+    <aside className="w-64 bg-background border-r border-border flex flex-col">
+      <div className="h-16 flex items-center px-6 border-b border-border">
+        <span className="text-xl font-bold text-foreground">DClaw HR</span>
       </div>
       <nav className="flex-1 p-4 space-y-1">
         {nav.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
           return (
             <Link
               key={item.name}
@@ -30,8 +31,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
               )}
             >
               <item.icon className="h-4 w-4" />

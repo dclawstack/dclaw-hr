@@ -120,6 +120,41 @@ export interface DashboardData {
     department: string;
     hire_date: string;
   }>;
+  pending_approvals: Array<{
+    id: string;
+    employee_name: string;
+    request_type: string;
+    start_date: string;
+    end_date: string;
+    days: number;
+  }>;
+}
+
+export interface Candidate {
+  id: string;
+  name: string;
+  role: string;
+  email: string;
+  status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CandidateCreate {
+  name: string;
+  role: string;
+  email: string;
+  status?: string;
+  notes?: string;
+}
+
+export interface CandidateUpdate {
+  name?: string;
+  role?: string;
+  email?: string;
+  status?: string;
+  notes?: string;
 }
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
@@ -212,4 +247,40 @@ export async function deletePayroll(id: string): Promise<void> {
 // Dashboard
 export async function getDashboard(): Promise<DashboardData> {
   return api<DashboardData>("/dashboard");
+}
+
+// Candidates
+export async function listCandidates(params?: { status?: string }): Promise<Candidate[]> {
+  const qs = params?.status ? `?status=${params.status}` : "";
+  return api<Candidate[]>(`/candidates${qs}`);
+}
+
+export async function createCandidate(data: CandidateCreate): Promise<Candidate> {
+  return api<Candidate>("/candidates", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function getCandidate(id: string): Promise<Candidate> {
+  return api<Candidate>(`/candidates/${id}`);
+}
+
+export async function updateCandidate(id: string, data: CandidateUpdate): Promise<Candidate> {
+  return api<Candidate>(`/candidates/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function deleteCandidate(id: string): Promise<void> {
+  return api<void>(`/candidates/${id}`, { method: "DELETE" });
+}
+
+// Payroll CSV export
+export async function exportPayrollCsv(employeeId?: string): Promise<void> {
+  const qs = employeeId ? `?employee_id=${employeeId}` : "";
+  const url = `${API_BASE}/api/v1/payroll/export/csv${qs}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Export failed: ${res.status}`);
+  const blob = await res.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "payroll.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
