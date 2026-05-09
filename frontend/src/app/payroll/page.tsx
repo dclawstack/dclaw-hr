@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { listPayroll, createPayroll, listEmployees, PayrollRecord, Employee } from "@/lib/api";
+import { listPayroll, createPayroll, listEmployees, exportPayrollCsv, PayrollRecord, Employee } from "@/lib/api";
 
 export default function PayrollPage() {
   const [records, setRecords] = useState<PayrollRecord[]>([]);
@@ -63,7 +63,12 @@ export default function PayrollPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Payroll</h1>
-        <Button onClick={() => setShowForm((s) => !s)}>{showForm ? "Cancel" : "Run Payroll"}</Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => exportPayrollCsv().catch((e) => setError(e.message))}>
+            Export CSV
+          </Button>
+          <Button onClick={() => setShowForm((s) => !s)}>{showForm ? "Cancel" : "Run Payroll"}</Button>
+        </div>
       </div>
 
       {showForm && (

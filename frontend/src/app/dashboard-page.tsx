@@ -3,21 +3,34 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plane, Clock, DollarSign } from "lucide-react";
-import { getDashboard, DashboardData } from "@/lib/api";
+import { Users, Plane, Clock, DollarSign, CheckCircle, XCircle } from "lucide-react";
+import { getDashboard, updateTimeOff, DashboardData } from "@/lib/api";
 
 export function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string>("");
+  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
 
-  useEffect(() => {
-    getDashboard()
-      .then(setData)
-      .catch((e) => setError(e.message));
-  }, []);
+  function refresh() {
+    getDashboard().then(setData).catch((e) => setError(e.message));
+  }
 
-  if (error) return <div className="text-red-600">{error}</div>;
-  if (!data) return <div className="text-slate-500">Loading...</div>;
+  useEffect(() => { refresh(); }, []);
+
+  async function handleApproval(id: string, status: "approved" | "rejected") {
+    setPendingActionId(id);
+    try {
+      await updateTimeOff(id, { status });
+      refresh();
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setPendingActionId(null);
+    }
+  }
+
+  if (error) return <div className="text-destructive">{error}</div>;
+  if (!data) return <div className="text-muted-foreground">Loading...</div>;
 
   const stats = [
     { label: "Total Employees", value: data.total_employees, icon: Users },
@@ -74,16 +87,58 @@ export function DashboardPage() {
                   <span className="text-sm">
                     {e.first_name} {e.last_name}
                   </span>
-                  <span className="text-xs text-slate-500">{e.hire_date}</span>
+                  <span className="text-xs text-muted-foreground">{e.hire_date}</span>
                 </div>
               ))}
               {data.recent_hires.length === 0 && (
-                <div className="text-sm text-slate-500">No recent hires</div>
+                <div className="text-sm text-muted-foreground">No recent hires</div>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Pending Approvals</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {data.pending_approvals.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No pending requests</div>
+          ) : (
+            <div className="space-y-3">
+              {data.pending_approvals.map((r) => (
+                <div key={r.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0 last:pb-0">
+                  <div>
+                    <p className="text-sm font-medium">{r.employee_name}</p>
+                    <p className="text-xs text-muted-foreground capitalize">
+                      {r.request_type} · {r.start_date} → {r.end_date} · {r.days}d
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      disabled={pendingActionId === r.id}
+                      onClick={() => handleApproval(r.id, "approved")}
+                      className="text-primary hover:text-primary/80 disabled:opacity-50"
+                      aria-label="Approve"
+                    >
+                      <CheckCircle className="h-5 w-5" />
+                    </button>
+                    <button
+                      disabled={pendingActionId === r.id}
+                      onClick={() => handleApproval(r.id, "rejected")}
+                      className="text-destructive hover:text-destructive/80 disabled:opacity-50"
+                      aria-label="Reject"
+                    >
+                      <XCircle className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

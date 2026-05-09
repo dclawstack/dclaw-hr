@@ -8,12 +8,13 @@ from app.core.database import get_db
 from app.models.employee import Employee
 from app.models.time_off_request import TimeOffRequest
 from app.models.payroll_record import PayrollRecord
+from app.repositories.time_off_repo import TimeOffRepository
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
 @router.get("")
-async def get_dashboard(db: AsyncSession = Depends(get_db)) -> dict:
+async def get_dashboard(db: AsyncSession = Depends(get_db)) -> dict:  # noqa: C901
     # Total employees
     total_result = await db.execute(select(func.count()).select_from(Employee))
     total_employees = total_result.scalar_one()
@@ -56,6 +57,10 @@ async def get_dashboard(db: AsyncSession = Depends(get_db)) -> dict:
     )
     recent_hires = recent_hires_result.scalars().all()
 
+    # Pending approvals list
+    to_repo = TimeOffRepository(db)
+    pending_list = await to_repo.list_pending()
+
     return {
         "total_employees": total_employees,
         "on_leave_today": on_leave_today,
@@ -71,5 +76,16 @@ async def get_dashboard(db: AsyncSession = Depends(get_db)) -> dict:
                 "hire_date": e.hire_date.isoformat(),
             }
             for e in recent_hires
+        ],
+        "pending_approvals": [
+            {
+                "id": str(r.id),
+                "employee_name": f"{r.employee.first_name} {r.employee.last_name}",
+                "request_type": r.request_type,
+                "start_date": r.start_date.isoformat(),
+                "end_date": r.end_date.isoformat(),
+                "days": r.days,
+            }
+            for r in pending_list
         ],
     }

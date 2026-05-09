@@ -1,7 +1,10 @@
+import csv
+import io
 from uuid import UUID
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -79,3 +82,37 @@ async def delete_payroll(
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payroll record not found")
     await repo.delete(record)
+
+
+@router.get("/export/csv")
+async def export_payroll_csv(
+    employee_id: UUID | None = None,
+    db: AsyncSession = Depends(get_db),
+) -> StreamingResponse:
+    repo = PayrollRepository(db)
+    records = await repo.list_by_employee(employee_id) if employee_id else await repo.list()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "employee_name", "department", "pay_period_start", "pay_period_end",
+        "base_salary", "bonus", "deductions", "net_pay",
+    ])
+    for r in records:
+        writer.writerow([
+            f"{r.employee.first_name} {r.employee.last_name}",
+            r.employee.department,
+            r.pay_period_start.isoformat(),
+            r.pay_period_end.isoformat(),
+            r.base_salary,
+            r.bonus,
+            r.deductions,
+            r.net_pay,
+        ])
+
+    output.seek(0)
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=payroll.csv"},
+    )
