@@ -12,7 +12,6 @@ class PayrollBase(BaseModel):
     base_salary: float = 0.0
     bonus: float = 0.0
     deductions: float = 0.0
-    net_pay: float = 0.0
 
 
 class PayrollCreate(PayrollBase):

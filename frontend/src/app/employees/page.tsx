@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { listEmployees, Employee } from "@/lib/api";
-import { LayoutGrid, Table as TableIcon } from "lucide-react";
+import { LayoutGrid, Table as TableIcon, UserPlus } from "lucide-react";
 
 const departments = ["all", "engineering", "sales", "marketing", "hr", "finance", "operations"];
 
@@ -41,6 +41,12 @@ export default function EmployeesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Employees</h1>
         <div className="flex items-center gap-2">
+          <Link href="/employees/new">
+            <Button>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Employee
+            </Button>
+          </Link>
           <Button variant={view === "grid" ? "default" : "outline"} size="icon" onClick={() => setView("grid")}>
             <LayoutGrid className="h-4 w-4" />
           </Button>

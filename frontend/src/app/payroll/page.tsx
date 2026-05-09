@@ -21,7 +21,9 @@ export default function PayrollPage() {
   const [baseSalary, setBaseSalary] = useState("");
   const [bonus, setBonus] = useState("0");
   const [deductions, setDeductions] = useState("0");
-  const [netPay, setNetPay] = useState("");
+
+  const calculatedNetPay =
+    (parseFloat(baseSalary) || 0) + (parseFloat(bonus) || 0) - (parseFloat(deductions) || 0);
 
   useEffect(() => {
     listPayroll()
@@ -42,7 +44,6 @@ export default function PayrollPage() {
         base_salary: parseFloat(baseSalary),
         bonus: parseFloat(bonus),
         deductions: parseFloat(deductions),
-        net_pay: parseFloat(netPay),
       });
       const updated = await listPayroll();
       setRecords(updated);
@@ -53,7 +54,6 @@ export default function PayrollPage() {
       setBaseSalary("");
       setBonus("0");
       setDeductions("0");
-      setNetPay("");
     } catch (err: any) {
       setError(err.message);
     }
@@ -111,8 +111,10 @@ export default function PayrollPage() {
                   <Input type="number" step="0.01" value={deductions} onChange={(e) => setDeductions(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Net Pay</Label>
-                  <Input type="number" step="0.01" value={netPay} onChange={(e) => setNetPay(e.target.value)} required />
+                  <Label>Calculated Net Pay</Label>
+                  <div className="flex h-9 items-center rounded-md border border-border bg-muted px-3 text-sm text-muted-foreground">
+                    ${calculatedNetPay.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
                 </div>
               </div>
               {error && <div className="text-red-600 text-sm">{error}</div>}
