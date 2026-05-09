@@ -24,8 +24,8 @@ cd dclaw-YOURAPP
 
 # 2. Find/replace placeholders
 # HR    -> Your app name (e.g., CRM)
-# {BACKEND_PORT}-> Next free port (see port registry below)
-# {FRONTEND_PORT}-> Next free port
+# {BACKEND_PORT} -> Next free port (see port registry below)
+# {FRONTEND_PORT} -> Next free port
 # {DB_NAME}     -> dclaw_yourapp
 
 # 3. Write your PRODUCT-SPEC.md
