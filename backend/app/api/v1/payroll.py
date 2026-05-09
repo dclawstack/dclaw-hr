@@ -34,7 +34,9 @@ async def create_payroll(
     if not employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
     repo = PayrollRepository(db)
-    record = PayrollRecord(**data.model_dump())
+    fields = data.model_dump()
+    fields["net_pay"] = fields["base_salary"] + fields["bonus"] - fields["deductions"]
+    record = PayrollRecord(**fields)
     return await repo.create(record)
 
 
@@ -60,8 +62,10 @@ async def update_payroll(
     record = await repo.get(record_id)
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Payroll record not found")
-    for field, value in data.model_dump(exclude_unset=True).items():
+    updates = data.model_dump(exclude_unset=True)
+    for field, value in updates.items():
         setattr(record, field, value)
+    record.net_pay = record.base_salary + record.bonus - record.deductions
     return await repo.update(record)
 
 

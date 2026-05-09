@@ -6,11 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { listTimeOff, TimeOffRequest } from "@/lib/api";
+import { listTimeOff, updateTimeOff, TimeOffRequest } from "@/lib/api";
 import { Plus } from "lucide-react";
 
 export default function TimeOffPage() {
   const [requests, setRequests] = useState<TimeOffRequest[]>([]);
+  const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -18,6 +19,19 @@ export default function TimeOffPage() {
       .then(setRequests)
       .catch((e) => setError(e.message));
   }, []);
+
+  async function handleAction(id: string, status: "approved" | "rejected") {
+    setPendingActionId(id);
+    try {
+      await updateTimeOff(id, { status });
+      const updated = await listTimeOff();
+      setRequests(updated);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setPendingActionId(null);
+    }
+  }
 
   const pending = requests.filter((r) => r.status === "pending");
   const others = requests.filter((r) => r.status !== "pending");
@@ -52,6 +66,7 @@ export default function TimeOffPage() {
                   <TableHead>Start</TableHead>
                   <TableHead>End</TableHead>
                   <TableHead>Days</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -64,6 +79,25 @@ export default function TimeOffPage() {
                     <TableCell>{r.start_date}</TableCell>
                     <TableCell>{r.end_date}</TableCell>
                     <TableCell>{r.days}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          disabled={pendingActionId === r.id}
+                          onClick={() => handleAction(r.id, "approved")}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={pendingActionId === r.id}
+                          onClick={() => handleAction(r.id, "rejected")}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

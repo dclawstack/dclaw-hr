@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getEmployee, listTimeOff, listPayroll, Employee, TimeOffRequest, PayrollRecord } from "@/lib/api";
@@ -35,9 +37,14 @@ export default function EmployeeDetailPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">
-        {employee.first_name} {employee.last_name}
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">
+          {employee.first_name} {employee.last_name}
+        </h1>
+        <Link href={`/employees/${id}/edit`}>
+          <Button variant="secondary">Edit</Button>
+        </Link>
+      </div>
       <div className="flex items-center gap-2">
         <Badge variant="secondary" className="capitalize">
           {employee.department}
