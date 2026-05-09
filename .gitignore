@@ -16,3 +16,6 @@ frontend/.turbo/
 .DS_Store
 *.log
 .env
+
+# Obsidian
+.obsidian/
