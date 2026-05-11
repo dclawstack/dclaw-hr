@@ -1,21 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plane, Clock, DollarSign, CheckCircle, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, Plane, Clock, DollarSign, CheckCircle, XCircle, X } from "lucide-react";
 import { getDashboard, updateTimeOff, DashboardData } from "@/lib/api";
+
+const SURVEY_BANNER_KEY = "dclaw_hr_survey_banner_dismissed";
 
 export function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string>("");
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
+  const [showSurveyBanner, setShowSurveyBanner] = useState(false);
 
   function refresh() {
     getDashboard().then(setData).catch((e) => setError(e.message));
   }
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+    const dismissed = localStorage.getItem(SURVEY_BANNER_KEY);
+    if (!dismissed) setShowSurveyBanner(true);
+  }, []);
+
+  function dismissSurveyBanner() {
+    localStorage.setItem(SURVEY_BANNER_KEY, "1");
+    setShowSurveyBanner(false);
+  }
 
   async function handleApproval(id: string, status: "approved" | "rejected") {
     setPendingActionId(id);
@@ -42,12 +56,34 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Dashboard</h1>
+
+      {showSurveyBanner && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold">Share your feedback</p>
+                <p className="text-xs text-muted-foreground mt-0.5">How likely are you to recommend this workplace? Take a 30-second pulse survey.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link href="/surveys">
+                  <Button size="sm" variant="default">Take Survey</Button>
+                </Link>
+                <button onClick={dismissSurveyBanner} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (
           <Card key={s.label}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-slate-600">{s.label}</CardTitle>
-              <s.icon className="h-4 w-4 text-slate-400" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">{s.label}</CardTitle>
+              <s.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{s.value}</div>
@@ -70,7 +106,7 @@ export function DashboardPage() {
                 </div>
               ))}
               {Object.keys(data.department_breakdown).length === 0 && (
-                <div className="text-sm text-slate-500">No employees yet</div>
+                <div className="text-sm text-muted-foreground">No employees yet</div>
               )}
             </div>
           </CardContent>
@@ -84,9 +120,7 @@ export function DashboardPage() {
             <div className="space-y-2">
               {data.recent_hires.map((e) => (
                 <div key={e.id} className="flex items-center justify-between">
-                  <span className="text-sm">
-                    {e.first_name} {e.last_name}
-                  </span>
+                  <span className="text-sm">{e.first_name} {e.last_name}</span>
                   <span className="text-xs text-muted-foreground">{e.hire_date}</span>
                 </div>
               ))}

@@ -127,48 +127,48 @@ Badges: use existing shadcn variants only — `default`, `secondary`, `destructi
 
 > Inspired by BambooHR, HiBob, Lattice, and Rippling. All UI strictly uses design tokens above.
 
-#### P2-1. Employee Self-Service Portal *(BambooHR)*
+#### P2-1. Employee Self-Service Portal *(BambooHR)* ✅
 **Description:** Employees can view their own profile, submit time-off, and view payroll history without admin access.
 - **Frontend:** `/self-service?employee_id=<id>` page with Tabs: My Profile, My Time Off, My Payroll. No new backend endpoints — uses existing filtered API calls.
 - **Files:** `frontend/src/app/self-service/page.tsx` (new), `frontend/src/components/sidebar.tsx`
 
-#### P2-2. eNPS / Engagement Survey *(BambooHR / HiBob)*
+#### P2-2. eNPS / Engagement Survey *(BambooHR / HiBob)* ✅
 **Description:** Pulse survey: NPS score (1–10) + open comment. Tracks employee engagement over time.
 - **Backend:** `Survey` model (id, employee_id FK, score Int, comment Text, submitted_at). `GET /api/v1/surveys/summary` returns avg score + response count. Migration + tests.
 - **Frontend:** Survey banner Card on dashboard (dismissible via `localStorage`). `/surveys` page shows avg eNPS as `text-2xl font-bold`, response trend.
 - **Files:** `backend/app/models/survey.py` (new), schemas, repo, `backend/app/api/v1/surveys.py` (new), migration, tests, `frontend/src/app/surveys/page.tsx` (new), `frontend/src/app/dashboard-page.tsx`
 
-#### P2-3. 1-on-1 Meeting Tracker *(Lattice)*
+#### P2-3. 1-on-1 Meeting Tracker *(Lattice)* ✅
 **Description:** Managers log 1-on-1s with direct reports: date, notes, action items, status.
 - **Backend:** `OneOnOne` model (id, manager_id FK Employee, employee_id FK Employee, scheduled_date Date, notes Text, action_items Text, status Enum: scheduled/completed/cancelled). CRUD `/api/v1/one-on-ones`. Migration + tests.
 - **Frontend:** `/one-on-ones` page — list with status Badge, create form (manager + employee selects, date, notes).
 - **Files:** `backend/app/models/one_on_one.py` (new), schemas, repo, routes, migration, tests, `frontend/src/app/one-on-ones/page.tsx` (new), `frontend/src/components/sidebar.tsx`, `frontend/src/lib/api.ts`
 
-#### P2-4. OKR / Goals Tracking *(Lattice / Rippling)*
+#### P2-4. OKR / Goals Tracking *(Lattice / Rippling)* ✅
 **Description:** Track individual or company objectives with a 0–100 progress indicator.
 - **Backend:** `Goal` model (id, owner_id FK Employee nullable, title String, description Text, progress Int 0–100 default 0, due_date Date, status Enum: active/completed/cancelled). CRUD `/api/v1/goals`. Migration + tests.
 - **Frontend:** `/goals` page — progress bars (`bg-primary h-2 rounded-full` on `bg-muted rounded-full` track), create form, inline progress update.
 - **Files:** `backend/app/models/goal.py` (new), schemas, repo, routes, migration, tests, `frontend/src/app/goals/page.tsx` (new), `frontend/src/components/sidebar.tsx`, `frontend/src/lib/api.ts`
 
-#### P2-5. Shoutouts / Recognition Feed *(HiBob)*
+#### P2-5. Shoutouts / Recognition Feed *(HiBob)* ✅
 **Description:** Public peer recognition — employees give shoutouts to each other.
 - **Backend:** `Shoutout` model (id, from_employee_id FK, to_employee_id FK, message Text, created_at). `GET/POST /api/v1/shoutouts`. Migration + tests.
 - **Frontend:** `/recognition` page — feed of Cards (avatar, "from → to" in `text-sm font-semibold`, message in `text-muted-foreground`, timestamp). Create form: recipient select + text area.
 - **Files:** `backend/app/models/shoutout.py` (new), schemas, repo, routes, migration, tests, `frontend/src/app/recognition/page.tsx` (new), `frontend/src/components/sidebar.tsx`, `frontend/src/lib/api.ts`
 
-#### P2-6. AI: Leave Trend Analysis *(PRODUCT-SPEC)*
+#### P2-6. AI: Leave Trend Analysis *(PRODUCT-SPEC)* ✅
 **Description:** Predict burnout risk from 12-month leave history using OpenRouter/Ollama.
 - **Backend:** `backend/app/services/ai_service.py` (new). `analyze_leave_trends(employee_id, db)` aggregates approved time-off by month+type, sends prompt to OpenRouter (falls back to Ollama). Returns `{ risk_level: low|medium|high, pattern_summary, recommendation }`. Route `GET /api/v1/employees/{id}/leave-analysis`. Tests mock the AI call.
 - **Frontend:** "Leave Analysis" tab in `/employees/[id]/page.tsx`. "Run Analysis" Button → risk Badge + summary text.
 - **Files:** `backend/app/services/ai_service.py` (new), `backend/app/api/v1/employees.py`, `backend/tests/test_employees.py`, `frontend/src/app/employees/[id]/page.tsx`, `frontend/src/lib/api.ts`
 
-#### P2-7. AI: Salary Benchmarking *(PRODUCT-SPEC)*
+#### P2-7. AI: Salary Benchmarking *(PRODUCT-SPEC)* ✅
 **Description:** Compare employee salary to department min/max/avg using AI analysis.
 - **Backend:** `benchmark_salary(employee_id, db)` in `ai_service.py` — fetches salary + dept stats from DB, sends to OpenRouter. Returns `{ market_position: below|at|above, recommendation }`. Route `GET /api/v1/employees/{id}/salary-benchmark`.
 - **Frontend:** "Benchmark Salary" Button on `/employees/[id]` profile → Dialog showing market_position Badge + recommendation text.
 - **Files:** `backend/app/services/ai_service.py`, `backend/app/api/v1/employees.py`, `frontend/src/app/employees/[id]/page.tsx`, `frontend/src/lib/api.ts`
 
-#### P2-8. Time-Off Balance Tracking *(BambooHR)*
+#### P2-8. Time-Off Balance Tracking *(BambooHR)* ✅
 **Description:** Show used vs. allocated days per employee per year. Computed — no new model needed.
 - **Backend:** `GET /api/v1/employees/{id}/time-off-balance?year=YYYY` — sums approved days by request_type. Returns `{ vacation_used, sick_used, personal_used, vacation_allocated: 20, sick_allocated: 10 }`.
 - **Frontend:** Balance progress bars in the Time Off tab of `/employees/[id]/page.tsx`. `bg-primary` fill on `bg-muted` track, `text-sm text-muted-foreground` labels.
