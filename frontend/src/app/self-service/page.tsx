@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { listEmployees, getEmployee, listTimeOff, listPayroll, Employee, TimeOffRequest, PayrollRecord } from "@/lib/api";
 
-export default function SelfServicePage() {
+function SelfServiceContent() {
   const searchParams = useSearchParams();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedId, setSelectedId] = useState(searchParams.get("employee_id") || "");
@@ -160,5 +160,13 @@ export default function SelfServicePage() {
         </Tabs>
       )}
     </div>
+  );
+}
+
+export default function SelfServicePage() {
+  return (
+    <Suspense fallback={<div className="text-muted-foreground">Loading...</div>}>
+      <SelfServiceContent />
+    </Suspense>
   );
 }
