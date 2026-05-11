@@ -1,10 +1,13 @@
 from uuid import UUID
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select, extract, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.models.employee import Employee
+from app.models.time_off_request import TimeOffRequest
 from app.repositories.employee_repo import EmployeeRepository
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate, EmployeeResponse
 
@@ -36,6 +39,65 @@ async def create_employee(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
     employee = Employee(**data.model_dump())
     return await repo.create(employee)
+
+
+@router.get("/{employee_id}/time-off-balance")
+async def get_time_off_balance(
+    employee_id: UUID,
+    year: int | None = None,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    repo = EmployeeRepository(db)
+    employee = await repo.get(employee_id)
+    if not employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+
+    target_year = year or date.today().year
+    result = await db.execute(
+        select(TimeOffRequest.request_type, func.sum(TimeOffRequest.days)).where(
+            TimeOffRequest.employee_id == employee_id,
+            TimeOffRequest.status == "approved",
+            extract("year", TimeOffRequest.start_date) == target_year,
+        ).group_by(TimeOffRequest.request_type)
+    )
+    used: dict[str, int] = {"vacation": 0, "sick": 0, "personal": 0, "bereavement": 0, "other": 0}
+    for rtype, days in result.all():
+        used[rtype] = int(days or 0)
+
+    return {
+        "year": target_year,
+        "vacation_used": used["vacation"],
+        "sick_used": used["sick"],
+        "personal_used": used["personal"],
+        "vacation_allocated": 20,
+        "sick_allocated": 10,
+    }
+
+
+@router.get("/{employee_id}/leave-analysis")
+async def get_leave_analysis(
+    employee_id: UUID,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    from app.services.ai_service import analyze_leave_trends
+    repo = EmployeeRepository(db)
+    employee = await repo.get(employee_id)
+    if not employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    return await analyze_leave_trends(employee_id, db)
+
+
+@router.get("/{employee_id}/salary-benchmark")
+async def get_salary_benchmark(
+    employee_id: UUID,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    from app.services.ai_service import benchmark_salary
+    repo = EmployeeRepository(db)
+    employee = await repo.get(employee_id)
+    if not employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    return await benchmark_salary(employee_id, db)
 
 
 @router.get("/{employee_id}", response_model=EmployeeResponse)

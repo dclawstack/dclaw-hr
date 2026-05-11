@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CalendarDays, Banknote, Briefcase } from "lucide-react";
+import { LayoutDashboard, Users, CalendarDays, Banknote, Briefcase, Heart, Target, MessageSquare, UserCog, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -11,6 +11,11 @@ const nav = [
   { name: "Time Off", href: "/time-off", icon: CalendarDays },
   { name: "Payroll", href: "/payroll", icon: Banknote },
   { name: "Recruitment", href: "/recruitment", icon: Briefcase },
+  { name: "Recognition", href: "/recognition", icon: Heart },
+  { name: "Goals", href: "/goals", icon: Target },
+  { name: "1-on-1s", href: "/one-on-ones", icon: Video },
+  { name: "Surveys", href: "/surveys", icon: MessageSquare },
+  { name: "Self Service", href: "/self-service", icon: UserCog },
 ];
 
 export function Sidebar() {
@@ -21,7 +26,7 @@ export function Sidebar() {
       <div className="h-16 flex items-center px-6 border-b border-border">
         <span className="text-xl font-bold text-foreground">DClaw HR</span>
       </div>
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {nav.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
           return (

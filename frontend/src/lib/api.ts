@@ -157,6 +157,127 @@ export interface CandidateUpdate {
   notes?: string;
 }
 
+export interface Survey {
+  id: string;
+  employee_id: string;
+  score: number;
+  comment: string | null;
+  submitted_at: string;
+}
+
+export interface SurveyCreate {
+  employee_id: string;
+  score: number;
+  comment?: string;
+}
+
+export interface SurveySummary {
+  avg_score: number;
+  response_count: number;
+}
+
+export interface EmployeeNested {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
+
+export interface OneOnOne {
+  id: string;
+  manager_id: string;
+  employee_id: string;
+  scheduled_date: string;
+  notes: string | null;
+  action_items: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  manager: EmployeeNested;
+  employee: EmployeeNested;
+}
+
+export interface OneOnOneCreate {
+  manager_id: string;
+  employee_id: string;
+  scheduled_date: string;
+  notes?: string;
+  action_items?: string;
+  status?: string;
+}
+
+export interface OneOnOneUpdate {
+  scheduled_date?: string;
+  notes?: string;
+  action_items?: string;
+  status?: string;
+}
+
+export interface Goal {
+  id: string;
+  owner_id: string | null;
+  title: string;
+  description: string | null;
+  progress: number;
+  due_date: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  owner: EmployeeNested | null;
+}
+
+export interface GoalCreate {
+  owner_id?: string;
+  title: string;
+  description?: string;
+  progress?: number;
+  due_date?: string;
+  status?: string;
+}
+
+export interface GoalUpdate {
+  title?: string;
+  description?: string;
+  progress?: number;
+  due_date?: string;
+  status?: string;
+}
+
+export interface Shoutout {
+  id: string;
+  from_employee_id: string;
+  to_employee_id: string;
+  message: string;
+  created_at: string;
+  from_employee: EmployeeNested;
+  to_employee: EmployeeNested;
+}
+
+export interface ShoutoutCreate {
+  from_employee_id: string;
+  to_employee_id: string;
+  message: string;
+}
+
+export interface TimeOffBalance {
+  year: number;
+  vacation_used: number;
+  sick_used: number;
+  personal_used: number;
+  vacation_allocated: number;
+  sick_allocated: number;
+}
+
+export interface LeaveAnalysis {
+  risk_level: "low" | "medium" | "high";
+  pattern_summary: string;
+  recommendation: string;
+}
+
+export interface SalaryBenchmark {
+  market_position: "below" | "at" | "above";
+  recommendation: string;
+}
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 async function api<T>(path: string, options?: RequestInit): Promise<T> {
@@ -198,6 +319,19 @@ export async function updateEmployee(id: string, data: EmployeeUpdate): Promise<
 
 export async function deleteEmployee(id: string): Promise<void> {
   return api<void>(`/employees/${id}`, { method: "DELETE" });
+}
+
+export async function getTimeOffBalance(id: string, year?: number): Promise<TimeOffBalance> {
+  const qs = year ? `?year=${year}` : "";
+  return api<TimeOffBalance>(`/employees/${id}/time-off-balance${qs}`);
+}
+
+export async function getLeaveAnalysis(id: string): Promise<LeaveAnalysis> {
+  return api<LeaveAnalysis>(`/employees/${id}/leave-analysis`);
+}
+
+export async function getSalaryBenchmark(id: string): Promise<SalaryBenchmark> {
+  return api<SalaryBenchmark>(`/employees/${id}/salary-benchmark`);
 }
 
 // Time Off
@@ -269,6 +403,73 @@ export async function updateCandidate(id: string, data: CandidateUpdate): Promis
 
 export async function deleteCandidate(id: string): Promise<void> {
   return api<void>(`/candidates/${id}`, { method: "DELETE" });
+}
+
+// Surveys
+export async function listSurveys(params?: { employee_id?: string }): Promise<Survey[]> {
+  const qs = params?.employee_id ? `?employee_id=${params.employee_id}` : "";
+  return api<Survey[]>(`/surveys${qs}`);
+}
+
+export async function getSurveySummary(): Promise<SurveySummary> {
+  return api<SurveySummary>("/surveys/summary");
+}
+
+export async function createSurvey(data: SurveyCreate): Promise<Survey> {
+  return api<Survey>("/surveys", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function deleteSurvey(id: string): Promise<void> {
+  return api<void>(`/surveys/${id}`, { method: "DELETE" });
+}
+
+// 1-on-1s
+export async function listOneOnOnes(params?: { manager_id?: string; employee_id?: string }): Promise<OneOnOne[]> {
+  const qs = params ? "?" + new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString() : "";
+  return api<OneOnOne[]>(`/one-on-ones${qs}`);
+}
+
+export async function createOneOnOne(data: OneOnOneCreate): Promise<OneOnOne> {
+  return api<OneOnOne>("/one-on-ones", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function updateOneOnOne(id: string, data: OneOnOneUpdate): Promise<OneOnOne> {
+  return api<OneOnOne>(`/one-on-ones/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function deleteOneOnOne(id: string): Promise<void> {
+  return api<void>(`/one-on-ones/${id}`, { method: "DELETE" });
+}
+
+// Goals
+export async function listGoals(params?: { owner_id?: string; status?: string }): Promise<Goal[]> {
+  const qs = params ? "?" + new URLSearchParams(Object.entries(params).filter(([, v]) => v)).toString() : "";
+  return api<Goal[]>(`/goals${qs}`);
+}
+
+export async function createGoal(data: GoalCreate): Promise<Goal> {
+  return api<Goal>("/goals", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function updateGoal(id: string, data: GoalUpdate): Promise<Goal> {
+  return api<Goal>(`/goals/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+}
+
+export async function deleteGoal(id: string): Promise<void> {
+  return api<void>(`/goals/${id}`, { method: "DELETE" });
+}
+
+// Shoutouts
+export async function listShoutouts(): Promise<Shoutout[]> {
+  return api<Shoutout[]>("/shoutouts");
+}
+
+export async function createShoutout(data: ShoutoutCreate): Promise<Shoutout> {
+  return api<Shoutout>("/shoutouts", { method: "POST", body: JSON.stringify(data) });
+}
+
+export async function deleteShoutout(id: string): Promise<void> {
+  return api<void>(`/shoutouts/${id}`, { method: "DELETE" });
 }
 
 // Payroll CSV export
