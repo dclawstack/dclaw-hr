@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
-  getEmployee, listTimeOff, listPayroll, updateEmployee,
+  getEmployee, listTimeOff, listPayroll, updateEmployee, deleteEmployee,
   getTimeOffBalance, getLeaveAnalysis, getSalaryBenchmark,
   Employee, TimeOffRequest, PayrollRecord, TimeOffBalance, LeaveAnalysis, SalaryBenchmark,
 } from "@/lib/api";
@@ -47,16 +47,14 @@ export default function EmployeeDetailPage() {
       .catch((err) => setError(err.message));
   }, [id]);
 
-  async function handleStatusToggle() {
+  async function handleTerminate() {
     if (!employee) return;
-    const newStatus = employee.status === "terminated" ? "active" : "terminated";
     setActionLoading(true);
     try {
-      const updated = await updateEmployee(id, { status: newStatus });
-      setEmployee(updated);
+      await deleteEmployee(id);
+      window.location.href = "/employees";
     } catch (e: any) {
       setError(e.message);
-    } finally {
       setActionLoading(false);
       setShowConfirm(false);
     }
@@ -111,11 +109,7 @@ export default function EmployeeDetailPage() {
           <Link href={`/employees/${id}/edit`}>
             <Button variant="secondary">Edit</Button>
           </Link>
-          {employee.status !== "terminated" ? (
-            <Button variant="destructive" onClick={() => setShowConfirm(true)}>Terminate</Button>
-          ) : (
-            <Button variant="outline" disabled={actionLoading} onClick={handleStatusToggle}>Reinstate</Button>
-          )}
+          <Button variant="destructive" onClick={() => setShowConfirm(true)}>Terminate</Button>
         </div>
 
         <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
@@ -128,7 +122,7 @@ export default function EmployeeDetailPage() {
             </p>
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={() => setShowConfirm(false)}>Cancel</Button>
-              <Button variant="destructive" disabled={actionLoading} onClick={handleStatusToggle}>
+              <Button variant="destructive" disabled={actionLoading} onClick={handleTerminate}>
                 {actionLoading ? "Processing..." : "Terminate"}
               </Button>
             </div>

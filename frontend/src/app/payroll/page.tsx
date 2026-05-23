@@ -7,13 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { listPayroll, createPayroll, listEmployees, exportPayrollCsv, PayrollRecord, Employee } from "@/lib/api";
+import { listPayroll, createPayroll, listEmployees, exportPayrollCsv, updatePayroll, deletePayroll, PayrollRecord, Employee, PayrollUpdate } from "@/lib/api";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Trash2, Edit2 } from "lucide-react";
 
 export default function PayrollPage() {
   const [records, setRecords] = useState<PayrollRecord[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const [employeeId, setEmployeeId] = useState("");
   const [payPeriodStart, setPayPeriodStart] = useState("");
@@ -34,28 +39,71 @@ export default function PayrollPage() {
       .catch((e) => setError(e.message));
   }, []);
 
+  function resetForm() {
+    setEmployeeId("");
+    setPayPeriodStart("");
+    setPayPeriodEnd("");
+    setBaseSalary("");
+    setBonus("0");
+    setDeductions("0");
+    setEditingId(null);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
     try {
-      await createPayroll({
-        employee_id: employeeId,
-        pay_period_start: payPeriodStart,
-        pay_period_end: payPeriodEnd,
-        base_salary: parseFloat(baseSalary),
-        bonus: parseFloat(bonus),
-        deductions: parseFloat(deductions),
-      });
+      if (editingId) {
+        const updates: PayrollUpdate = {};
+        if (payPeriodStart) updates.pay_period_start = payPeriodStart;
+        if (payPeriodEnd) updates.pay_period_end = payPeriodEnd;
+        if (baseSalary) updates.base_salary = parseFloat(baseSalary);
+        if (bonus !== undefined) updates.bonus = parseFloat(bonus);
+        if (deductions !== undefined) updates.deductions = parseFloat(deductions);
+        await updatePayroll(editingId, updates);
+      } else {
+        await createPayroll({
+          employee_id: employeeId,
+          pay_period_start: payPeriodStart,
+          pay_period_end: payPeriodEnd,
+          base_salary: parseFloat(baseSalary),
+          bonus: parseFloat(bonus),
+          deductions: parseFloat(deductions),
+        });
+      }
       const updated = await listPayroll();
       setRecords(updated);
       setShowForm(false);
-      setEmployeeId("");
-      setPayPeriodStart("");
-      setPayPeriodEnd("");
-      setBaseSalary("");
-      setBonus("0");
-      setDeductions("0");
+      resetForm();
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function openEdit(record: PayrollRecord) {
+    setEditingId(record.id);
+    setPayPeriodStart(record.pay_period_start);
+    setPayPeriodEnd(record.pay_period_end);
+    setBaseSalary(record.base_salary.toString());
+    setBonus(record.bonus.toString());
+    setDeductions(record.deductions.toString());
+    setShowForm(true);
+  }
+
+  async function handleDelete() {
+    if (!deleteId) return;
+    setLoading(true);
+    try {
+      await deletePayroll(deleteId);
+      const updated = await listPayroll();
+      setRecords(updated);
+      setDeleteId(null);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -75,21 +123,24 @@ export default function PayrollPage() {
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label>Employee</Label>
-                <Select value={employeeId} onValueChange={(v) => setEmployeeId(v || "")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select employee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {employees.map((emp) => (
-                      <SelectItem key={emp.id} value={emp.id}>
-                        {emp.first_name} {emp.last_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {editingId && !employeeId && <input type="hidden" value={employeeId} />}
+              {!editingId && (
+                <div className="space-y-2">
+                  <Label>Employee</Label>
+                  <Select value={employeeId} onValueChange={(v) => setEmployeeId(v || "")}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.id} value={emp.id}>
+                          {emp.first_name} {emp.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Pay Period Start</Label>
@@ -123,7 +174,10 @@ export default function PayrollPage() {
                 </div>
               </div>
               {error && <div className="text-red-600 text-sm">{error}</div>}
-              <Button type="submit">Save Payroll Record</Button>
+              <div className="flex gap-2">
+                <Button type="submit" disabled={loading}>{editingId ? "Update" : "Save"} Payroll Record</Button>
+                <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>Cancel</Button>
+              </div>
             </form>
           </CardContent>
         </Card>
@@ -146,6 +200,7 @@ export default function PayrollPage() {
                   <TableHead>Bonus</TableHead>
                   <TableHead>Deductions</TableHead>
                   <TableHead>Net Pay</TableHead>
+                  <TableHead className="w-20">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -161,6 +216,14 @@ export default function PayrollPage() {
                     <TableCell>${p.bonus.toLocaleString()}</TableCell>
                     <TableCell>${p.deductions.toLocaleString()}</TableCell>
                     <TableCell>${p.net_pay.toLocaleString()}</TableCell>
+                    <TableCell className="flex gap-2">
+                      <Button size="sm" variant="outline" onClick={() => openEdit(p)}>
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setDeleteId(p.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -168,6 +231,21 @@ export default function PayrollPage() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Delete Payroll Record</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete this payroll record? This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
+            <Button variant="destructive" disabled={loading} onClick={handleDelete}>
+              {loading ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
