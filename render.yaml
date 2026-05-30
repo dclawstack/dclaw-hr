@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: dclaw-hr-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dclaw-hr-db
+          property: connectionString
+      - key: PORT
+        value: 8097
+    healthCheckPath: /health/
+
+  - type: web
+    name: dclaw-hr-frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm start
+    plan: free
+    region: oregon
+    envVars:
+      - key: API_URL
+        fromService:
+          name: dclaw-hr-backend
+          type: web
+          property: host
+          prepend: "https://"
+      - key: PORT
+        value: 3008
+
+databases:
+  - name: dclaw-hr-db
+    databaseName: dclaw_hr
+    plan: free

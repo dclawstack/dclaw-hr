@@ -22,12 +22,19 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
+    import os
+    allowed_origins = [
+        "http://localhost:3008",
+        "http://localhost:3000",
+        "https://dclaw-hr.vercel.app",
+        "https://dclaw-hr-ramsai0206s-projects.vercel.app",
+    ]
+    if extra := os.getenv("CORS_ORIGINS"):
+        allowed_origins.extend(extra.split(","))
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3008",
-            "http://localhost:3000",
-        ],
+        allow_origins=allowed_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
