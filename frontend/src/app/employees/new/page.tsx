@@ -23,7 +23,7 @@ export default function NewEmployeePage() {
   const [phone, setPhone] = useState("");
   const [department, setDepartment] = useState("");
   const [jobTitle, setJobTitle] = useState("");
-  const [salary, setSalary] = useState("");
+  const [salary, setSalary] = useState("75000");
   const [hireDate, setHireDate] = useState("");
   const [status, setStatus] = useState("active");
   const [managerId, setManagerId] = useState("");

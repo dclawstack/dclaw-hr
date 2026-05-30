@@ -134,6 +134,16 @@ export default function EmployeeDetailPage() {
             <DialogHeader><DialogTitle>Salary Benchmark</DialogTitle></DialogHeader>
             {benchmark && (
               <div className="space-y-3">
+                <div className="text-sm">
+                  <span className="font-medium">{employee.first_name} {employee.last_name}</span>
+                  {" — "}{employee.job_title}, <span className="capitalize">{employee.department}</span>
+                </div>
+                <div className="text-sm">
+                  Current salary:{" "}
+                  <span className="font-mono">
+                    {employee.salary ? `$${employee.salary.toLocaleString()}` : "not set"}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">Market Position:</span>
                   <Badge variant={positionColor} className="capitalize">{benchmark.market_position}</Badge>

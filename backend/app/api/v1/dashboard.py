@@ -8,6 +8,8 @@ from app.core.database import get_db
 from app.models.employee import Employee
 from app.models.time_off_request import TimeOffRequest
 from app.models.payroll_record import PayrollRecord
+from app.models.candidate import Candidate
+from app.models.goal import Goal
 from app.repositories.time_off_repo import TimeOffRepository
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -57,6 +59,20 @@ async def get_dashboard(db: AsyncSession = Depends(get_db)) -> dict:  # noqa: C9
     )
     recent_hires = recent_hires_result.scalars().all()
 
+    # Active candidates (anyone still in the pipeline — not rejected, not offered-and-accepted)
+    active_candidates_result = await db.execute(
+        select(func.count()).select_from(Candidate).where(
+            Candidate.status.in_(("screening", "interviewed", "offered"))
+        )
+    )
+    active_candidates = active_candidates_result.scalar_one()
+
+    # Open goals (active, not completed/cancelled)
+    open_goals_result = await db.execute(
+        select(func.count()).select_from(Goal).where(Goal.status == "active")
+    )
+    open_goals = open_goals_result.scalar_one()
+
     # Pending approvals list
     to_repo = TimeOffRepository(db)
     pending_list = await to_repo.list_pending()
@@ -66,6 +82,8 @@ async def get_dashboard(db: AsyncSession = Depends(get_db)) -> dict:  # noqa: C9
         "on_leave_today": on_leave_today,
         "pending_time_off": pending_time_off,
         "monthly_payroll": float(monthly_payroll),
+        "active_candidates": active_candidates,
+        "open_goals": open_goals,
         "department_breakdown": department_breakdown,
         "recent_hires": [
             {

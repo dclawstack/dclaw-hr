@@ -6,7 +6,7 @@ import { LayoutDashboard, Users, CalendarDays, Banknote, Briefcase, Heart, Targe
 import { cn } from "@/lib/utils";
 
 const nav = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Employees", href: "/employees", icon: Users },
   { name: "Time Off", href: "/time-off", icon: CalendarDays },
   { name: "Payroll", href: "/payroll", icon: Banknote },

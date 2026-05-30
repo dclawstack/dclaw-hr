@@ -95,11 +95,12 @@ async def export_payroll_csv(
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow([
-        "employee_name", "department", "pay_period_start", "pay_period_end",
+        "employee_id", "employee_name", "department", "pay_period_start", "pay_period_end",
         "base_salary", "bonus", "deductions", "net_pay",
     ])
     for r in records:
         writer.writerow([
+            str(r.employee_id),
             f"{r.employee.first_name} {r.employee.last_name}",
             r.employee.department,
             r.pay_period_start.isoformat(),

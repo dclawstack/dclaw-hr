@@ -17,5 +17,11 @@ frontend/.turbo/
 *.log
 .env
 
+# MCP config (contains API keys)
+.mcp.json
+testsprite_tests/tmp/
+
 # Obsidian
 .obsidian/
+
+testsprite_tests/tmp/config.json

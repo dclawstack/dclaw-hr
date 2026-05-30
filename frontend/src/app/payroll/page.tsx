@@ -218,10 +218,12 @@ export default function PayrollPage() {
                     <TableCell>${p.net_pay.toLocaleString()}</TableCell>
                     <TableCell className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => openEdit(p)}>
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-4 w-4 mr-1" />
+                        Edit
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => setDeleteId(p.id)}>
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Delete
                       </Button>
                     </TableCell>
                   </TableRow>

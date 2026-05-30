@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Plane, Clock, DollarSign, CheckCircle, XCircle, X } from "lucide-react";
+import { Users, Plane, Clock, DollarSign, CheckCircle, XCircle, X, UserPlus, Target } from "lucide-react";
 import { getDashboard, updateTimeOff, DashboardData } from "@/lib/api";
 
 const SURVEY_BANNER_KEY = "dclaw_hr_survey_banner_dismissed";
@@ -51,6 +51,8 @@ export function DashboardPage() {
     { label: "On Leave Today", value: data.on_leave_today, icon: Plane },
     { label: "Pending Approvals", value: data.pending_time_off, icon: Clock },
     { label: "Monthly Payroll", value: `$${data.monthly_payroll.toLocaleString()}`, icon: DollarSign },
+    { label: "Active Candidates", value: data.active_candidates, icon: UserPlus },
+    { label: "Open Goals", value: data.open_goals, icon: Target },
   ];
 
   return (

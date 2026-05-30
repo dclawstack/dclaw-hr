@@ -112,6 +112,8 @@ export interface DashboardData {
   on_leave_today: number;
   pending_time_off: number;
   monthly_payroll: number;
+  active_candidates: number;
+  open_goals: number;
   department_breakdown: Record<string, number>;
   recent_hires: Array<{
     id: string;
